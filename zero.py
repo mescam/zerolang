@@ -3,7 +3,7 @@ import argparse
 import sys
 
 def purify_source(s):
-    allowed = ['0+', '0++', '0-', '0--', '0?', '0.', '0!']
+    allowed = ['0+', '0++', '0-', '0--', '0?', '0.', '0,', '0/', '/0', '0;']
     s = s.replace('\n', ' ').replace('\t', ' ')
     arr = s.split(' ')
     return list([ins for ins in arr if ins in allowed])
@@ -86,6 +86,23 @@ if __name__ == '__main__':
                 sys.stderr.write('Wrong ascii value at memory cell %d\n' % self.position)
                 sys.exit(1)
 
+        def print_int(self):
+            if self.loop_ended:
+                self.__inc_pos()
+                return
+            sys.stdout.write('%d' % self.memory(self.position))
+            self.__inc_pos()
+
+        def read_ascii(self):
+            x = raw_input()
+            self.memory[self.position] = ord(x)
+            self.__inc_pos()
+
+        def read_int(self):
+            x = raw_input()
+            self.memory[self.position] = int(x)
+            self.__inc_pos()
+
     prog = Program()
 
     instructions = {
@@ -94,8 +111,11 @@ if __name__ == '__main__':
         '0++': prog.incv,
         '0--': prog.decv,
         '0.': prog.print_ascii,
-        '0?': prog.loop_start,
-        '0!': prog.loop_end,
+        '0,': prog.print_int,
+        '0/': prog.loop_start,
+        '/0': prog.loop_end,
+        '0?': prog.read_ascii,
+        '0;': prog.read_int,
     }
 
     ins_count = len(ins)
