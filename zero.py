@@ -23,6 +23,7 @@ if __name__ == '__main__':
             self.loops = list()
             self.loop_ended = False
             self.ins = 0
+            self.lbalance = 0
 
         def __inc_pos(self):
             self.ins = self.ins + 1
@@ -60,19 +61,25 @@ if __name__ == '__main__':
 
         def loop_start(self):
             if self.loop_ended:
+                self.lbalance = self.lbalance + 1
                 self.__inc_pos()
                 return
             if self.memory[self.position] == 0:
-                self.loops.remove(self.ins)
+                if self.ins in self.loops:
+                    self.loops.remove(self.ins)
                 self.loop_ended = True
                 self.__inc_pos()
                 return
-            self.loops.append(self.ins)
+            if self.ins not in self.loops:
+                self.loops.append(self.ins)
             self.__inc_pos()
 
         def loop_end(self):
             if self.loop_ended:
-                self.loop_ended = False
+                if self.lbalance == 0:
+                    self.loop_ended = False
+                else:
+                    self.lbalance = self.lbalance - 1
                 self.__inc_pos()
                 return
             self.ins = self.loops[-1]
@@ -90,7 +97,7 @@ if __name__ == '__main__':
             if self.loop_ended:
                 self.__inc_pos()
                 return
-            sys.stdout.write('%d' % self.memory(self.position))
+            sys.stdout.write('%d' % self.memory[self.position])
             self.__inc_pos()
 
         def read_ascii(self):
@@ -121,6 +128,7 @@ if __name__ == '__main__':
     ins_count = len(ins)
     while prog.ins < ins_count: # lol :X
         instructions[ins[prog.ins]]()
+    # print prog.memory
     sys.exit(0)
 
 
